@@ -1,0 +1,22 @@
+[project]
+name = "api-rest-test"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Zebi lobognon", email = "zebilobognon@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.141.1",
+    "psycopg2-binary>=2.9.13",
+    "pydantic-settings>=2.15.0",
+    "sqlalchemy>=2.0.54",
+]
+
+[project.scripts]
+api-rest-test = "api_rest_test:main"
+
+[build-system]
+requires = ["uv_build>=0.12.9,<0.13.0"]
+build-backend = "uv_build"
