@@ -4,5 +4,4 @@ from sqlalchemy.dialects.postgresql import ARRAY
 
 from db.database import Base
 
-
 # class
