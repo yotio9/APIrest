@@ -18,3 +18,5 @@ class Authservices :
             if u.username == user.username and u.motdpass == user.motdpass:
                 return user
     raise HTTPException(401, "nom d'utilisateur ou mot de passe incorrect")
+ 
+ def lister()
