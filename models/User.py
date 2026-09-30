@@ -8,5 +8,6 @@ class User (Base):
    __tablename__ = "users"
    id= Column(Integer,primary_key=True)
    nom= Column(String)
+   email=Column(String)
    motdpass=Column(String)
    age=Column(String)
