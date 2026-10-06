@@ -11,5 +11,3 @@ class Setting(BaseSettings):
     JWT_SECRET: str
 
 settings=Setting()
-
-print(settings.model_dump())

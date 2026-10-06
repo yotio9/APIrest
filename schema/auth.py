@@ -11,4 +11,11 @@ class Usercreate(BaseModel):
 class Userconnect(BaseModel):
     email:str
     motdpass:str
-    
+
+class Usertask(BaseModel):
+    title:str
+    description:str
+    priority:str  
+
+class Uptask(BaseModel):
+    id_task:int

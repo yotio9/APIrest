@@ -1,9 +1,11 @@
 from pydantic import BaseModel
 from fastapi import APIRouter,HTTPException,status,Query
 from sqlalchemy import select
-from schema.auth import Usercreate,Userconnect
+from core.security import create_access_token
+from schema.auth import Usercreate,Userconnect,Usertask,Uptask#,Droptask
 from db.database import db_dependency, AsyncSession
 from models.User import User
+from models.Task import Task
 from pwdlib import PasswordHash
 
 password_context = PasswordHash.recommended()
@@ -27,16 +29,20 @@ class Authservices:
       
 
    async def connection(self, user_body:Userconnect):
-      username_field=user_body.email
+      username_field=user_body.email# on recuperer les donnees 
       motdpass_field=user_body.motdpass
       smt=await self.db.execute(
-         select(User).where(User.email == username_field)
+         select(User).where(User.email == username_field)#on ecrit la requete
       )
       user = smt.scalar_one_or_none()
       if not user or not password_context.verify(motdpass_field, user.motdpass) :
          raise HTTPException(detail="motdpass ou email incorrect",status_code=status.HTTP_401_UNAUTHORIZED)
    
-      return user
+      return {
+         "message": "Connexion réussie",
+         "access_token": create_access_token(str(user.id)),
+         "token_type": "bearer",
+      }
 
    async def list_all_user(self):
     resultat = await self.db.execute(
@@ -46,3 +52,30 @@ class Authservices:
     users = resultat.scalars().first()
 
     return users
+
+   async def Give_tasks(self, user_body: Usertask, user_id: int):
+      new_task=Task(
+         title=user_body.title,
+         description=user_body.description,
+         priority=user_body.priority,
+         userID=user_id,
+               )
+      self.db.add(new_task)
+      await self.db.commit()
+      await self.db.refresh(new_task)
+      return new_task
+
+   async def Get_tasks(self, user_id: int):
+      resultat =await self.db.execute(
+         select(Task).where(Task.userID == user_id)
+      )
+      tasks=resultat.scalars().all()
+
+      return tasks
+   
+   
+#   async def Up_tasks(self,body:Uptask, user_id:int):
+#      pass
+
+#  async def Drop_task(self,body:Droptask,user):
+#      pass
