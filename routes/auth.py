@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request, Response
 from services.auth import Authservices
-from schema.auth import Usercreate,Userconnect,Usertask#lister_user
+from schema.auth import Usercreate,Userconnect,Usertask,Uptask,Droptask,filtertask#lister_user
 from db.database import db_dependency
 from core.security import get_current_user_id
 
@@ -33,6 +33,46 @@ async def Get_tasks(
 ):
     services=Authservices(db)
     return await services.Get_tasks(user_id)
+
+
+@auth_rooter.put("/Up_task/")
+async def Up_task(
+    body: Uptask,
+    db: db_dependency,
+    user_id: Annotated[int, Depends(get_current_user_id)],
+):
+    services=Authservices(db)
+    return await services.Up_tasks(body, user_id)
+
+
+@auth_rooter.delete("/Drop_task/")
+async def Drop_task(
+    body: Droptask,
+    db: db_dependency,
+    user_id: Annotated[int, Depends(get_current_user_id)],
+):
+    services=Authservices(db)
+    return await services.Drop_task(body, user_id)
+
+
+@auth_rooter.post("/Task_completed/")
+async def Task_completed(
+    body: filtertask,
+    db: db_dependency,
+    user_id: Annotated[int, Depends(get_current_user_id)],
+):
+    services=Authservices(db)
+    return await services.Task_completed(body, user_id)
+
+
+@auth_rooter.post("/priority_filter/")
+async def priority_filter(
+    body: filtertask,
+    db: db_dependency,
+    user_id: Annotated[int, Depends(get_current_user_id)],
+):
+    services=Authservices(db)
+    return await services.priority_filter(body, user_id)
 
 
 @auth_rooter.post("/connection/")

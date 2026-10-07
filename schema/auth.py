@@ -19,3 +19,12 @@ class Usertask(BaseModel):
 
 class Uptask(BaseModel):
     id_task:int
+    new_task:str
+
+class Droptask(BaseModel):
+    id_task:int
+
+class filtertask(BaseModel):
+    id_task:int
+    priority_search:str
+    completed_state:bool

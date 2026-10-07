@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from fastapi import APIRouter,HTTPException,status,Query
 from sqlalchemy import select
 from core.security import create_access_token
-from schema.auth import Usercreate,Userconnect,Usertask,Uptask#,Droptask
+from schema.auth import Usercreate,Userconnect,Usertask,Uptask,Droptask,filtertask
 from db.database import db_dependency, AsyncSession
 from models.User import User
 from models.Task import Task
@@ -74,8 +74,60 @@ class Authservices:
       return tasks
    
    
-#   async def Up_tasks(self,body:Uptask, user_id:int):
-#      pass
+   async def Up_tasks(self,body:Uptask, user_id:int):
+      resultat = await self.db.execute(
+         select(Task).where(
+            Task.id == body.id_task,
+            Task.userID == user_id,
+         )
+      )
+      task = resultat.scalar_one_or_none()
+      if task is None:
+         raise HTTPException(
+            detail="Tâche introuvable",
+            status_code=status.HTTP_404_NOT_FOUND,
+         )
 
-#  async def Drop_task(self,body:Droptask,user):
-#      pass
+      task.title = body.new_task
+      await self.db.commit()
+      await self.db.refresh(task)
+      return task
+
+   async def Drop_task(self,body:Droptask,user_id:int):
+      resultat = await self.db.execute(
+         select(Task).where(
+            Task.id == body.id_task,
+            Task.userID == user_id,
+         )
+      )
+      task = resultat.scalar_one_or_none()
+      if task is None:
+         raise HTTPException(
+            detail="Tâche introuvable",
+            status_code=status.HTTP_404_NOT_FOUND,
+         )
+
+      await self.db.delete(task)
+      await self.db.commit()
+      return {"message": "Tâche supprimée"}
+
+
+   async def Task_completed(self,body:filtertask ,user_id:int):
+      resultat = await self.db.execute(
+         select(Task).where(
+                Task.userID == user_id,
+                Task.completed == body.completed_state,
+         )
+      )
+      tasks = resultat.scalars().all()
+      return tasks
+
+   async def priority_filter(self,body:filtertask ,user_id:int):
+      resultat = await self.db.execute(
+         select(Task).where(
+                Task.userID == user_id,
+                Task.priority == body.priority_search,
+         )
+      )
+      tasks = resultat.scalars().all()
+      return tasks
